@@ -6,8 +6,8 @@ static bool is_close_paren(TokenType t){ return t == TokenType::RParen; }
 
 int InfixToPostfix::precedence(TokenType t){
     switch(t){
-        case TokenType::Neg:                  return 4; // unario: más alto que ^
-        case TokenType::Pow:                  return 3; // ^ (right-assoc)
+        case TokenType::Neg:                  return 4;
+        case TokenType::Pow:                  return 3;
         case TokenType::Mul:
         case TokenType::Div:                  return 2;
         case TokenType::Plus:
@@ -17,7 +17,6 @@ int InfixToPostfix::precedence(TokenType t){
 }
 
 bool InfixToPostfix::is_left_assoc(TokenType t){
-    // ^ y NEG son right-assoc; el resto left-assoc
     return !(t == TokenType::Pow || t == TokenType::Neg);
 }
 
@@ -40,7 +39,6 @@ bool InfixToPostfix::is_function(TokenType t){
 }
 
 bool InfixToPostfix::is_unary_minus_context(TokenType prev){
-    // Al inicio (End), o tras operador, o tras '(' o ',' => '-' es unario
     if (prev == TokenType::End) return true;
     if (is_operator(prev)) return true;
     if (prev == TokenType::LParen) return true;
@@ -74,7 +72,7 @@ std::vector<Token> InfixToPostfix::convert(const std::vector<Token>& infix){
     std::vector<Token> out;
     std::vector<Token> opstack;
 
-    TokenType prev = TokenType::End; // contexto para menos unario
+    TokenType prev = TokenType::End;
 
     for (std::size_t i=0; i<infix.size(); ++i){
         Token tk = infix[i];
@@ -87,13 +85,11 @@ std::vector<Token> InfixToPostfix::convert(const std::vector<Token>& infix){
                 break;
 
             case TokenType::Sqrt:
-                // función: apilar y esperar '(' y su argumento
                 opstack.push_back(tk);
                 prev = tk.type;
                 break;
 
             case TokenType::Comma:
-                // sacar hasta el '(' más cercano
                 while(!opstack.empty() && !is_open_paren(opstack.back().type)){
                     out.push_back(opstack.back());
                     opstack.pop_back();
@@ -109,16 +105,13 @@ std::vector<Token> InfixToPostfix::convert(const std::vector<Token>& infix){
                 break;
 
             case TokenType::RParen:
-                // pop hasta encontrar '('
                 while(!opstack.empty() && !is_open_paren(opstack.back().type)){
                     out.push_back(opstack.back());
                     opstack.pop_back();
                 }
                 if (opstack.empty())
                     throw std::runtime_error("Paréntesis desbalanceados");
-                // quitar '('
                 opstack.pop_back();
-                // si al tope hay una función, también enviarla a salida
                 if(!opstack.empty() && is_function(opstack.back().type)){
                     out.push_back(opstack.back());
                     opstack.pop_back();
@@ -131,13 +124,11 @@ std::vector<Token> InfixToPostfix::convert(const std::vector<Token>& infix){
             case TokenType::Mul:
             case TokenType::Div:
             case TokenType::Pow: {
-                // detectar menos unario
                 TokenType cur = tk.type;
                 if (cur == TokenType::Minus && is_unary_minus_context(prev)){
-                    cur = TokenType::Neg; // convertir a NEG
+                    cur = TokenType::Neg;
                     tk = Token(cur, "NEG");
                 }
-                // pop según precedencia/aso
                 pop_while_opstack_has_higher_or_equal(out, opstack, cur);
                 opstack.push_back(tk);
                 prev = cur;
@@ -145,12 +136,10 @@ std::vector<Token> InfixToPostfix::convert(const std::vector<Token>& infix){
             }
 
             case TokenType::End:
-                // ignorar
                 break;
         }
     }
 
-    // vaciar pila de operadores
     while(!opstack.empty()){
         if (is_open_paren(opstack.back().type) || is_close_paren(opstack.back().type))
             throw std::runtime_error("Paréntesis desbalanceados");

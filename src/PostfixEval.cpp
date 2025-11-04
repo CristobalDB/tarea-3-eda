@@ -17,7 +17,6 @@ double PostfixEval::eval(const std::vector<Token>& rpn,
     for (const auto& tk : rpn){
         switch(tk.type){
             case TokenType::Number: {
-                // stod lanza si no es convertible
                 double v = std::stod(tk.lexeme);
                 st.push(v);
                 break;
@@ -69,7 +68,6 @@ double PostfixEval::eval(const std::vector<Token>& rpn,
             case TokenType::RParen:
             case TokenType::Comma:
             case TokenType::End:
-                // no aparecen en RPN bien formada
                 break;
         }
     }

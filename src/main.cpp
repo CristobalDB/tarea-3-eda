@@ -10,7 +10,6 @@
 #include "PostfixEval.hpp"
 #include "ExprTree.hpp"
 
-// utils simples
 static inline std::string ltrim(std::string s){
     std::size_t i=0; while(i<s.size() && std::isspace(static_cast<unsigned char>(s[i]))) ++i;
     return s.substr(i);
@@ -35,7 +34,6 @@ static bool is_valid_ident(const std::string& s){
     return true;
 }
 
-// busca el primer '=' que NO esté dentro de paréntesis
 static int find_assign_outside_parens(const std::string& line){
     int depth = 0;
     for (int i=0; i<(int)line.size(); ++i){
@@ -64,7 +62,6 @@ int main() {
         if (line == "exit") break;
 
         try {
-            // show <id>
             if (line.rfind("show", 0) == 0) {
                 std::string rest = trim(line.substr(4));
                 if (rest.empty()) { std::cout << "Uso: show <variable>\n"; continue; }
@@ -75,7 +72,6 @@ int main() {
                 continue;
             }
 
-            // posfix / prefix / tree
             if (line == "posfix"){
                 if (last_rpn.empty()) { std::cout << "(sin expresión previa)\n"; continue; }
                 for (auto& t : last_rpn){
@@ -96,7 +92,6 @@ int main() {
                 continue;
             }
 
-            // ¿Asignación?
             int eq = find_assign_outside_parens(line);
             if (eq >= 0){
                 std::string lhs = trim(line.substr(0, eq));
@@ -111,12 +106,12 @@ int main() {
                 last_tree = ExprTree::from_postfix(last_rpn);
                 double v  = PostfixEval::eval(last_rpn, &symbols);
                 symbols[lhs] = v;
-                symbols["ans"] = v; // también actualizamos ans
+                symbols["ans"] = v;
                 std::cout << lhs << " -> " << v << "\n";
                 continue;
             }
 
-            // Expresión normal
+
             auto toks = Tokenizer::tokenize(line);
             last_rpn  = InfixToPostfix::convert(toks);
             last_tree = ExprTree::from_postfix(last_rpn);

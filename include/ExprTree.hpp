@@ -5,11 +5,10 @@
 #include <ostream>
 #include "Token.hpp"
 
-// Nodo del árbol de expresión
 struct ExprNode {
     Token tok;
     std::shared_ptr<ExprNode> left;
-    std::shared_ptr<ExprNode> right; // para unario usamos solo left
+    std::shared_ptr<ExprNode> right;
     explicit ExprNode(const Token& t) : tok(t), left(nullptr), right(nullptr) {}
 };
 
@@ -21,13 +20,11 @@ public:
     const std::shared_ptr<ExprNode>& root() const { return root_; }
     bool empty() const { return !root_; }
 
-    // Construye desde RPN (postfija)
     static ExprTree from_postfix(const std::vector<Token>& rpn);
 
-    // Impresiones
-    void print_prefix(std::ostream& os) const;   // preorden
-    void print_postfix(std::ostream& os) const;  // postorden
-    void print_ascii(std::ostream& os) const;    // árbol ASCII
+    void print_prefix(std::ostream& os) const;
+    void print_postfix(std::ostream& os) const;
+    void print_ascii(std::ostream& os) const;
 
 private:
     std::shared_ptr<ExprNode> root_{};

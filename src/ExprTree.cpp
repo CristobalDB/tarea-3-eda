@@ -37,7 +37,6 @@ ExprTree ExprTree::from_postfix(const std::vector<Token>& rpn){
             n->right = b;
             st.emplace_back(n);
         } else {
-            // LParen/RParen/Comma/End no deberían aparecer en RPN bien formada
         }
     }
     if (st.size() != 1) throw std::runtime_error("RPN inválida: sobran elementos");

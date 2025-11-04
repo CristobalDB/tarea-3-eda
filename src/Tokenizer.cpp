@@ -20,7 +20,6 @@ void Tokenizer::push_implicit_mul_if_needed(std::vector<Token>& out, TokenType n
                         (nextStart == TokenType::LParen) ||
                         (nextStart == TokenType::Sqrt);
 
-    // Si hay átomo seguido de átomo, insertamos '*'
     if (prev_is_atom && next_is_atom) {
         out.emplace_back(TokenType::Mul, "*");
     }
@@ -34,7 +33,6 @@ std::vector<Token> Tokenizer::tokenize(const std::string& line){
         char c=line[i];
         if (std::isspace(static_cast<unsigned char>(c))){ ++i; continue; }
 
-        // Número (soporta puntos decimales simples)
         if (std::isdigit(static_cast<unsigned char>(c)) || c=='.'){
             push_implicit_mul_if_needed(out, TokenType::Number);
             std::size_t j=i+1;
@@ -43,7 +41,6 @@ std::vector<Token> Tokenizer::tokenize(const std::string& line){
             i=j; continue;
         }
 
-        // Identificador o función (sqrt, ans, x, etc.)
         if (is_ident_start(c)){
             std::size_t j=i+1;
             while (j<n && is_ident_char(line[j])) ++j;
@@ -57,7 +54,6 @@ std::vector<Token> Tokenizer::tokenize(const std::string& line){
             i=j; continue;
         }
 
-        // Símbolos
         switch(c){
             case '+': out.emplace_back(TokenType::Plus, "+"); break;
             case '-': out.emplace_back(TokenType::Minus, "-"); break;
@@ -71,7 +67,7 @@ std::vector<Token> Tokenizer::tokenize(const std::string& line){
             }
             case ')': out.emplace_back(TokenType::RParen, ")"); break;
             case ',': out.emplace_back(TokenType::Comma, ","); break;
-            default: /* ignorar char desconocido */ break;
+            default: break;
         }
         ++i;
     }

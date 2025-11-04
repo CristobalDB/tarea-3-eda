@@ -5,7 +5,6 @@
 
 class Tokenizer {
 public:
-    // Tokeniza una línea y además inserta '*' implícitos donde corresponda (p.ej. 2(3+4), x(1+y), )(
     static std::vector<Token> tokenize(const std::string& line);
 
 private:
